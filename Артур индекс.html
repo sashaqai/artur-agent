@@ -1,0 +1,619 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="dark">
+<title>Артур — Личный агент роста</title>
+<style>
+  :root {
+    --bg: #111A1F;
+    --bg2: #172329;
+    --bg3: #1D2C33;
+    --border: rgba(120,190,200,0.14);
+    --accent: #6DB5BF;
+    --accent-light: #A9DCE2;
+    --gold: #C98F4E;
+    --gold-light: #E6B070;
+    --rose: #C77B7B;
+    --green: #7FB88F;
+    --blue: #7F9FD1;
+    --text: #E4EEF0;
+    --text-muted: #93A9AE;
+    --text-dim: #5E7479;
+    --radius: 12px;
+    --radius-sm: 8px;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    background: var(--bg); color: var(--text);
+    font-family: -apple-system, 'Helvetica Neue', 'Segoe UI', Roboto, sans-serif;
+    min-height: 100%;
+  }
+
+  .header {
+    background: linear-gradient(135deg, #13303A 0%, #111A1F 100%);
+    border-bottom: 1px solid var(--border);
+    padding: 20px 20px 16px;
+    position: sticky; top: env(safe-area-inset-top, 0px); z-index: 100;
+  }
+  .header-top { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; max-width: 700px; margin-left: auto; margin-right: auto; }
+  .avatar {
+    width: 42px; height: 42px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--accent), var(--gold));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; color: var(--bg); font-weight: 700;
+  }
+  .header-info h1 { font-size: 16px; font-weight: 600; }
+  .header-info p { font-size: 12px; color: var(--text-muted); }
+  .tabs { display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; max-width: 700px; margin: 0 auto; }
+  .tabs::-webkit-scrollbar { display: none; }
+  .tab {
+    padding: 7px 14px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    cursor: pointer; white-space: nowrap; flex-shrink: 0;
+    border: 1px solid var(--border); color: var(--text-muted); background: transparent;
+    transition: all .2s; font-family: inherit;
+  }
+  .tab.active { background: var(--accent); color: var(--bg); border-color: var(--accent); font-weight: 600; }
+
+  .main { max-width: 700px; width: 100%; margin: 0 auto; padding-bottom: 60px; }
+  .section { display: none; padding: 16px; }
+  .section.active { display: block; }
+
+  .section-label {
+    font-size: 11px; font-weight: 600; color: var(--text-dim);
+    text-transform: uppercase; letter-spacing: .08em; margin-bottom: 10px;
+  }
+  .divider { height: 1px; background: var(--border); margin: 16px 0; }
+
+  .card { background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; margin-bottom: 12px; }
+  .card-title { font-size: 13px; font-weight: 600; color: var(--accent-light); margin-bottom: 8px; }
+  .card-body { font-size: 13px; color: var(--text-muted); line-height: 1.6; }
+  .card-body strong { color: var(--text); }
+
+  .badge { display: inline-block; padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; margin: 3px 3px 0 0; }
+  .badge-accent { background: rgba(109,181,191,.15); color: var(--accent-light); }
+  .badge-gold { background: rgba(201,143,78,.15); color: var(--gold-light); }
+  .badge-rose { background: rgba(199,123,123,.15); color: var(--rose); }
+  .badge-green { background: rgba(127,184,143,.15); color: var(--green); }
+
+  .practice-item {
+    background: var(--bg3); border-radius: var(--radius-sm);
+    padding: 12px 14px; margin-bottom: 8px; border-left: 3px solid var(--accent);
+  }
+  .practice-item.gold { border-left-color: var(--gold); }
+  .practice-item.rose { border-left-color: var(--rose); }
+  .practice-item.green { border-left-color: var(--green); }
+  .practice-item.blue { border-left-color: var(--blue); }
+  .practice-title { font-size: 13px; font-weight: 600; margin-bottom: 4px; }
+  .practice-desc { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+
+  .step { display: flex; gap: 12px; margin-bottom: 10px; align-items: flex-start; }
+  .step-num {
+    width: 24px; height: 24px; flex-shrink: 0; border-radius: 50%;
+    background: var(--accent); color: var(--bg);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 700; margin-top: 1px;
+  }
+  .step-title { font-size: 13px; font-weight: 600; color: var(--text); margin-bottom: 2px; }
+  .step-desc { font-size: 12px; color: var(--text-muted); line-height: 1.55; }
+
+  .book {
+    display: flex; gap: 12px; background: var(--bg2); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); padding: 12px; margin-bottom: 8px; align-items: flex-start;
+  }
+  .book-icon { width: 36px; height: 36px; flex-shrink: 0; background: var(--bg3); border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 18px; }
+  .book-title { font-size: 13px; font-weight: 600; }
+  .book-author { font-size: 11px; color: var(--text-muted); margin: 2px 0 4px; }
+  .book-why { font-size: 12px; color: var(--text-muted); line-height: 1.5; }
+
+  .tracker-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-bottom: 16px; }
+  .tracker-day {
+    aspect-ratio: 1; border-radius: 6px; background: var(--bg3); border: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: center; font-size: 10px; color: var(--text-dim);
+  }
+  .tracker-day.done { background: rgba(109,181,191,.2); border-color: var(--accent); color: var(--accent-light); }
+  .tracker-day.today { border-color: var(--gold); color: var(--gold); }
+
+  .habit-row {
+    display: flex; align-items: center; gap: 10px; padding: 10px 12px;
+    background: var(--bg2); border: 1px solid var(--border); border-radius: var(--radius-sm); margin-bottom: 6px;
+    cursor: pointer;
+  }
+  .habit-check {
+    width: 20px; height: 20px; border: 2px solid var(--border); border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--bg); transition: all .2s;
+  }
+  .habit-check.checked { background: var(--accent); border-color: var(--accent); }
+  .habit-name { flex: 1; font-size: 13px; }
+  .habit-streak { font-size: 11px; color: var(--gold); }
+
+  .goal-input {
+    width: 100%; background: var(--bg3); border: 1px solid var(--border); border-radius: var(--radius-sm);
+    color: var(--text); font-family: inherit; font-size: 13px; padding: 10px 12px; margin-top: 6px; resize: vertical; min-height: 44px;
+  }
+  .goal-input:focus { outline: none; border-color: var(--accent); }
+  .goal-label { font-size: 12px; font-weight: 600; color: var(--accent-light); margin-top: 10px; }
+</style>
+<style>
+  .quote { font-size: 12px; color: var(--text); background: var(--bg3); border-radius: var(--radius-sm); padding: 10px 12px; margin-top: 6px; line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="avatar">♒</div>
+    <div class="header-info">
+      <h1>Агент роста · Артур</h1>
+      <p>Продажи · Наставничество · Деньги · Энергия</p>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="map">✦ Карта</button>
+    <button class="tab" data-tab="practices">🌙 Практики</button>
+    <button class="tab" data-tab="sales">📞 Продажи</button>
+    <button class="tab" data-tab="money">💰 Деньги</button>
+    <button class="tab" data-tab="brand">🧭 Наставник</button>
+    <button class="tab" data-tab="books">📚 Книги</button>
+    <button class="tab" data-tab="tracker">✓ Трекер</button>
+  </div>
+</div>
+
+<div class="main">
+
+  <!-- MAP -->
+  <div class="section active" id="section-map">
+    <div class="section-label">Карта и твоя работа</div>
+
+    <div class="card">
+      <div class="card-title">♒ Кто ты по карте</div>
+      <div class="card-body">
+        <strong>MC в Близнецах</strong> — профессия через разговор, переговоры, информацию. Телефонные продажи и обучение людей прямо отсюда.<br><br>
+        <strong>Асцендент в Деве</strong> — аналитик. Ты разбираешь запрос клиента на части и видишь, где у него болит.<br><br>
+        <strong>Луна, Юпитер и Плутон в Скорпионе</strong> — умение копать глубоко и чувствовать, что человек недоговаривает. Отсюда твоя сила в выявлении болей.<br><br>
+        <strong>Солнце, Венера и Марс в Водолее в 5-м</strong> — тебе нужно своё: собственный метод, свой бренд, свобода в том, как ты работаешь.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💪 Сильные стороны</div>
+      <div class="card-body">
+        <span class="badge badge-accent">Диагностика запроса</span>
+        <span class="badge badge-accent">Аналитика</span>
+        <span class="badge badge-gold">Работа с болями</span>
+        <span class="badge badge-gold">Упорство</span>
+        <span class="badge badge-green">Улаживание конфликтов</span>
+        <span class="badge badge-green">Системное мышление</span>
+        <span class="badge badge-rose">Задатки наставника</span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🌱 Зоны роста</div>
+      <div class="card-body">
+        <strong>Нет огня (0).</strong> Презентации и «продавить решение» забирают много сил. Энергию даёт тело и короткие интенсивные рывки.<br><br>
+        <strong>Меркурий и Сатурн в Рыбах в 6-м.</strong> Работа часто завязана на чужие ошибки и размытые процессы — рекламации и провалы исполнения ложатся на тебя. Важно чётко отделять свою зону ответственности.<br><br>
+        <strong>6 из 10 планет в фиксированных знаках.</strong> Переносы решений у клиентов бесят сильнее, чем других. Ты сам решаешь основательно и ждёшь того же от людей.<br><br>
+        <strong>Хирон в Деве в 12-м.</strong> Скрытая чувствительность к ошибкам и ощущению «сделал недостаточно хорошо». Поэтому чужие провалы исполнения задевают лично. Этот же Хирон делает тебя сильным наставником: ты знаешь, как больно ошибаться, и умеешь учить без унижения.<br><br>
+        <strong>Луна в Скорпионе, Уран и Нептун в 4-м.</strong> Главная тревога — за здоровье и безопасность своих. Стабильность дома для тебя фундамент всего остального.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🗺 Данные карты</div>
+      <div class="card-body" style="font-size:12px">
+        02.02.1994 · 20:45 · Владикавказ · Плацидус<br>
+        Асц 25° Дева · MC 24° Близнецы<br>
+        ☉ 13°40′ Водолей (5) · ♀ 17° Водолей (5) · ♂ 4° Водолей (5)<br>
+        ☽ 5° Скорпион (2) · ♃ 13° Скорпион (2)<br>
+        ☿ 1° Рыбы (6) · ♄ 0° Рыбы (6)<br>
+        ♅ 23° Козерог (4) · ♆ 21° Козерог (4)<br>
+        ♇ 27°52′ Скорпион (3) · ☊ 29°57′ Скорпион (3)<br>
+        ⚷ 7°48′ Дева R (12)<br>
+        По планетам: Вода 5 · Воздух 3 · Земля 2 · Огонь 0<br>Источник: astro.com
+      </div>
+    </div>
+  </div>
+
+  <!-- PRACTICES -->
+  <div class="section" id="section-practices">
+    <div class="section-label">Психологические практики</div>
+
+    <div class="practice-item">
+      <div class="practice-title">🔥 Практика на энергию — «Искра перед звонком»</div>
+      <div class="practice-desc">Перед сложным звонком или презентацией — 2 минуты движения: 20 отжиманий, приседания, планка. Огня в карте нет, и тело даёт его быстрее любого кофе. Голос после нагрузки звучит увереннее, клиент это слышит.</div>
+    </div>
+
+    <div class="practice-item rose">
+      <div class="practice-title">🎯 Практика на спокойствие — «Моя зона»</div>
+      <div class="practice-desc">Когда прилетает рекламация или провал исполнения, возьми лист и раздели на две колонки: «зависит от меня» и «зависит от других». Во вторую колонку — одно действие: кому передать и в какой срок. Энергию тратишь только на первую колонку. Сатурн в 6-м учит не нести чужой груз как свой.</div>
+    </div>
+
+    <div class="practice-item gold">
+      <div class="practice-title">🛡 Практика на тревогу за близких — «Что я могу сегодня»</div>
+      <div class="practice-desc">Когда накрывает страх за здоровье своё или семьи, задай три вопроса: что реально происходит сейчас? что из этого я могу сделать сегодня? что уже сделано? Выбери одно действие — записать к врачу, позвонить, купить нужное — и сделай его. Скорпионовская Луна успокаивается, когда страх превращается в конкретный шаг.</div>
+    </div>
+
+    <div class="practice-item green">
+      <div class="practice-title">📋 Практика на ночную голову — «Выгрузка»</div>
+      <div class="practice-desc">Ты активнее всего ночью, и мысли о работе крутятся допоздна. Перед сном 5 минут: выпиши всё, что висит, и отметь одно главное дело на завтра. Голова отпускает, засыпаешь легче.</div>
+    </div>
+
+    <div class="practice-item blue">
+      <div class="practice-title">🔄 Практика на гибкость — «Пересмотр»</div>
+      <div class="practice-desc">Раз в неделю спроси себя: какой подход в продажах или в жизни я не менял больше полугода? Проверь, работает ли он ещё. Упорство — твоя сила, а регулярный пересмотр не даёт ему превратиться в застревание.</div>
+    </div>
+
+    <div class="divider"></div>
+    <div class="section-label">Эзотерические практики</div>
+
+    <div class="practice-item">
+      <div class="practice-title">🌑 Новолуние — намерение с цифрой</div>
+      <div class="practice-desc">В день новолуния запиши одно намерение на месяц с измеримым результатом: «Я провожу 3 консультации как наставник» или «Я закрываю 5 сделок». Положи там, где увидишь каждый день. Для карты без огня намерение работает только в связке с действием.</div>
+    </div>
+
+    <div class="practice-item gold">
+      <div class="practice-title">🌕 Полнолуние — отпускание</div>
+      <div class="practice-desc">Напиши, что держишь слишком долго: раздражение на клиента, чужой провал, который тащишь на себе, старую обиду. Одно предложение. Сожги или порви. Скорпион обновляется через отпускание.</div>
+    </div>
+
+    <div class="practice-item green">
+      <div class="practice-title">🌿 Заземление — «Руки в дело»</div>
+      <div class="practice-desc">Земли в карте мало. Раз в неделю сделай что-то руками с видимым результатом: готовка, ремонт, сборка. Это выводит из головы и звонков в реальность.</div>
+    </div>
+  </div>
+
+  <!-- SALES -->
+  <div class="section" id="section-sales">
+    <div class="section-label">Твой стиль продаж по карте</div>
+
+    <div class="card">
+      <div class="card-title">📞 Твоя сильная сторона — глубина</div>
+      <div class="card-body">
+        Скорпион в карте даёт то, что сложно натренировать: ты слышишь, что клиент недоговаривает. Дева добавляет структуру. Твоя стратегия — выиграть сделку на этапе выявления, чтобы до возражений дело почти не доходило.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🧩 Выявление и усиление болей — 4 слоя</div>
+      <div class="card-body">
+        <div class="step"><div class="step-num">1</div><div>
+          <div class="step-title">Факт</div>
+          <div class="step-desc">Как сейчас устроен процесс? Сколько менеджеров, заявок, где ведёте клиентов?</div>
+          <div class="quote">«Расскажите, что происходит с заявкой с момента, как она пришла?»</div>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div>
+          <div class="step-title">Проблема</div>
+          <div class="step-desc">Где теряется? Что раздражает руководителя?</div>
+          <div class="quote">«На каком этапе чаще всего что-то ломается?»</div>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div>
+          <div class="step-title">Цена проблемы</div>
+          <div class="step-desc">Переводим боль в деньги и время — это и есть усиление.</div>
+          <div class="quote">«Сколько заявок в месяц так теряется? Какой средний чек? Получается, это около ___ в месяц?»</div>
+        </div></div>
+        <div class="step"><div class="step-num">4</div><div>
+          <div class="step-title">Картина после</div>
+          <div class="step-desc">Клиент сам проговаривает ценность решения.</div>
+          <div class="quote">«Если это заработает, что изменится для вас лично?»</div>
+        </div></div>
+        Когда клиент сам назвал цену проблемы и сам описал результат, презентация становится короткой, а возражений почти нет.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">⏳ Против переносов решений</div>
+      <div class="card-body">
+        <strong>1. Следующий шаг с датой.</strong> Каждый звонок заканчивается конкретной договорённостью: «созваниваемся в четверг в 15:00, к этому времени вы обсуждаете с директором».<br><br>
+        <strong>2. Лицо, принимающее решение, — на ранней стадии.</strong> «Кто кроме вас будет участвовать в решении? Давайте его подключим на следующую встречу».<br><br>
+        <strong>3. Цена ожидания.</strong> «Каждый месяц без решения — это ___ потерянных заявок». Цифру берёшь из слоя 3.<br><br>
+        <strong>4. Честный вопрос.</strong> «Что должно произойти, чтобы вы приняли решение?» Ответ показывает настоящее возражение.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎤 Презентации без выгорания</div>
+      <div class="card-body">
+        Презентация отнимает силы, потому что это монолог, а ты сильнее в диалоге. Строй её вокруг болей клиента: 3 его проблемы из выявления → как каждая решается → цена ожидания. 15 минут максимум, дальше вопросы. Держи шаблон и меняй только блок с болями под клиента.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🛠 Рекламации</div>
+      <div class="card-body">
+        Твоя роль — сохранить клиента, исправлять ошибки исполнения — задача исполнения. Схема: признать проблему → назвать срок решения → передать исполнению письменно → вернуться к клиенту с результатом. Каждую рекламацию записывай в отдельную таблицу. Через пару месяцев у тебя будет аргумент для руководства и материал для будущих кейсов наставника.
+      </div>
+    </div>
+  </div>
+
+  <!-- MONEY -->
+  <div class="section" id="section-money">
+    <div class="section-label">Цель: стабильные 250 000 ₽</div>
+
+    <div class="card">
+      <div class="card-title">💰 Как деньги устроены у тебя</div>
+      <div class="card-body">
+        Луна и Юпитер во 2-м доме в Скорпионе — для тебя деньги равны безопасности семьи. Поэтому ключевое слово в цели — «стабильные». Юпитер во 2-м платит за глубокую экспертизу. Сейчас доход зависит от отдела исполнения. Второй поток даёт то, что зависит только от тебя.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🏗 Три потока</div>
+      <div class="card-body">
+        <div class="step"><div class="step-num">1</div><div>
+          <div class="step-title">Основа — продажи в найме</div>
+          <div class="step-desc">Растёт через конверсию: чем сильнее выявление, тем выше процент закрытия и бонусы. Фокус — техника из вкладки «Продажи».</div>
+        </div></div>
+        <div class="step"><div class="step-num">2</div><div>
+          <div class="step-title">Наставничество 1:1</div>
+          <div class="step-desc">Разбор звонков, обучение менеджеров, консультации собственникам. Ориентир на старте: 3 000–5 000 ₽ за сессию, пакет из 4 сессий 12 000–18 000 ₽.</div>
+        </div></div>
+        <div class="step"><div class="step-num">3</div><div>
+          <div class="step-title">Проекты — аудит и построение отдела продаж</div>
+          <div class="step-desc">Самый высокий чек: аудит 30 000–60 000 ₽, построение отдела под ключ от 100 000 ₽. Тут соединяются продажи, аналитика и интеграция Битрикс24 — редкая связка.</div>
+        </div></div>
+        Ориентиры по рынку примерные — уточнишь после первых клиентов.
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📅 Дорожная карта</div>
+      <div class="card-body">
+        <div class="practice-item">
+          <div class="practice-title">Октябрь — Декабрь 2026</div>
+          <div class="practice-desc">Упаковать опыт: описать свою методику выявления болей, собрать 3 кейса. Запустить личный бренд. Первые 2–3 клиента наставничества по сниженной цене за отзывы.</div>
+        </div>
+        <div class="practice-item gold">
+          <div class="practice-title">Январь — Март 2027</div>
+          <div class="practice-desc">Полная цена. 4–6 клиентов в месяц. Первый аудит отдела продаж.</div>
+        </div>
+        <div class="practice-item green">
+          <div class="practice-title">Апрель — Июнь 2027</div>
+          <div class="practice-desc">Наставничество приносит заметную часть дохода. Первый проект построения отдела. Решение: совмещать с наймом или переходить в своё.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">💡 Правила</div>
+      <div class="card-body">
+        <strong>Правило 1.</strong> Подушка 3–6 месяцев расходов — до ухода из найма. Скорпионовская Луна без неё будет принимать решения из страха.<br><br>
+        <strong>Правило 2.</strong> 10% каждого дохода от наставничества — сразу в отдельный счёт.<br><br>
+        <strong>Правило 3.</strong> Крупные траты — пауза 24 часа.<br><br>
+        <strong>Правило 4.</strong> Раз в месяц смотри цифры: сколько пришло из каждого потока. Так видно, когда второй поток готов стать основным.
+      </div>
+    </div>
+  </div>
+
+  <!-- BRAND -->
+  <div class="section" id="section-brand">
+    <div class="section-label">Путь к наставнику</div>
+
+    <div class="card">
+      <div class="card-title">🧭 Твоё позиционирование</div>
+      <div class="card-body">
+        «Аналитик, продажник, интегратор в одном лице» — это и есть уникальность. Большинство наставников по продажам не понимают CRM, большинство интеграторов не умеют продавать. Ты умеешь и то, и другое.
+        <div class="quote">Черновик: «Помогаю собственникам построить отдел продаж, который закрывает сделки, а CRM работает на выручку»</div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">📱 Контент для личного бренда</div>
+      <div class="card-body">
+        <span class="badge badge-accent">Telegram-канал</span>
+        <span class="badge badge-gold">VC.ru / LinkedIn</span>
+        <span class="badge badge-green">2 поста в неделю</span>
+        <br><br>
+        <div class="practice-item">
+          <div class="practice-title">Разбор звонка</div>
+          <div class="practice-desc">Типичная фраза менеджера → почему она не работает → как сказать иначе.</div>
+        </div>
+        <div class="practice-item gold">
+          <div class="practice-title">Боль собственника</div>
+          <div class="practice-desc">«Почему заявки теряются между маркетингом и продажами». Цифры и простое решение.</div>
+        </div>
+        <div class="practice-item rose">
+          <div class="practice-title">Кейс</div>
+          <div class="practice-desc">Было → что сделали → стало. Без названия компании, если нельзя.</div>
+        </div>
+        <div class="practice-item green">
+          <div class="practice-title">Из окопов</div>
+          <div class="practice-desc">Истории переносов, рекламаций, сложных клиентов и что из них вынес. Людям это интереснее теории.</div>
+        </div>
+        <div class="practice-item blue">
+          <div class="practice-title">ИИ в продажах</div>
+          <div class="practice-desc">Как ты используешь ИИ для подготовки к звонкам и анализа. Совпадает с твоей новой привычкой и отлично заходит аудитории.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🤖 Ежедневная работа с ИИ</div>
+      <div class="card-body">
+        Уран и Нептун плюс Водолей в 5-м — ты легко осваиваешь технологии. Идеи на 20 минут в день:<br><br>
+        · подготовка к звонку: сценарий вопросов под конкретного клиента<br>
+        · разбор расшифровки звонка: где упустил боль<br>
+        · черновики постов для бренда<br>
+        · скрипты и регламенты для будущих учеников
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="card-title">🎓 Первые шаги наставника</div>
+      <div class="card-body">
+        <div class="step"><div class="step-num">1</div><div><div class="step-title">Методика на одной странице</div><div class="step-desc">Твои 4 слоя выявления и работа с переносами — основа будущего курса.</div></div></div>
+        <div class="step"><div class="step-num">2</div><div><div class="step-title">Наставник для коллеги</div><div class="step-desc">Возьми новичка в отделе. Это бесплатная практика и первые результаты.</div></div></div>
+        <div class="step"><div class="step-num">3</div><div><div class="step-title">3 кейса</div><div class="step-desc">Было-стало в цифрах: конверсия, выручка, скорость сделки.</div></div></div>
+        <div class="step"><div class="step-num">4</div><div><div class="step-title">Первые платные клиенты</div><div class="step-desc">Из знакомых собственников и бывших клиентов Битрикс24.</div></div></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- BOOKS -->
+  <div class="section" id="section-books">
+    <div class="section-label">На продажи</div>
+
+    <div class="book"><div class="book-icon">🔍</div><div>
+      <div class="book-title">СПИН-продажи</div><div class="book-author">Нил Рэкхем</div>
+      <div class="book-why">Классика выявления и усиления потребностей в сложных продажах. Прямо про твою цель — убеждать до возражений.</div>
+    </div></div>
+
+    <div class="book"><div class="book-icon">🤝</div><div>
+      <div class="book-title">Никаких компромиссов</div><div class="book-author">Крис Восс</div>
+      <div class="book-why">Переговоры от бывшего переговорщика ФБР. Для Скорпиона, который чувствует людей, — набор точных инструментов.</div>
+    </div></div>
+
+    <div class="book"><div class="book-icon">💼</div><div>
+      <div class="book-title">45 татуировок продавана</div><div class="book-author">Максим Батырев</div>
+      <div class="book-why">Российская практика продаж и управления. Много про построение отдела.</div>
+    </div></div>
+
+    <div class="section-label" style="margin-top:16px">На личный бренд</div>
+
+    <div class="book"><div class="book-icon">📣</div><div>
+      <div class="book-title">Покажи свою работу!</div><div class="book-author">Остин Клеон</div>
+      <div class="book-why">Как делиться опытом и строить имя без самопиара. Короткая, читается за вечер.</div>
+    </div></div>
+
+    <div class="book"><div class="book-icon">🧩</div><div>
+      <div class="book-title">Гибкое сознание</div><div class="book-author">Кэрол Дуэк</div>
+      <div class="book-why">Мышление роста — основа для наставника и противовес перевесу фиксированных знаков.</div>
+    </div></div>
+
+    <div class="section-label" style="margin-top:16px">На энергию, эмоции и деньги</div>
+
+    <div class="book"><div class="book-icon">🔄</div><div>
+      <div class="book-title">Атомные привычки</div><div class="book-author">Джеймс Клир</div>
+      <div class="book-why">Карта без огня живёт на системе. Подойдёт, чтобы закрепить привычку работы с ИИ.</div>
+    </div></div>
+
+    <div class="book"><div class="book-icon">🌊</div><div>
+      <div class="book-title">Эмоциональная гибкость</div><div class="book-author">Сьюзан Дэвид</div>
+      <div class="book-why">Как проживать тревогу и раздражение без подавления. Для Луны в Скорпионе.</div>
+    </div></div>
+
+    <div class="book"><div class="book-icon">🧠</div><div>
+      <div class="book-title">Психология денег</div><div class="book-author">Морган Хаузел</div>
+      <div class="book-why">Про стабильность и терпение в деньгах. Для цели «стабильные 250 000».</div>
+    </div></div>
+  </div>
+
+  <!-- TRACKER -->
+  <div class="section" id="section-tracker">
+    <div class="section-label">Привычки на сегодня</div>
+    <div id="habits-list"></div>
+
+    <div class="divider"></div>
+    <div class="section-label">Прогресс недели</div>
+    <div class="tracker-grid" id="tracker-grid"></div>
+
+    <div class="card">
+      <div class="card-title">📊 Мои цели</div>
+      <div class="card-body">
+        Можно менять — сохраняется на этом устройстве.
+        <div class="goal-label">На этот месяц</div>
+        <textarea class="goal-input" id="goal-month">Описать методику выявления болей на одной странице. Начать работать с ИИ каждый день.</textarea>
+        <div class="goal-label">На 3 месяца</div>
+        <textarea class="goal-input" id="goal-quarter">Запустить личный бренд. Первые 2–3 клиента наставничества.</textarea>
+        <div class="goal-label">На год</div>
+        <textarea class="goal-input" id="goal-year">Стабильные 250 000 ₽ в месяц. Наставник по продажам и построению отделов.</textarea>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<script>
+function load(key, fallback) {
+  try { const v = localStorage.getItem(key); return v !== null ? JSON.parse(v) : fallback; }
+  catch (e) { return fallback; }
+}
+function save(key, value) {
+  try { localStorage.setItem(key, JSON.stringify(value)); } catch (e) {}
+}
+
+document.querySelectorAll('.tab').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    document.getElementById('section-' + btn.dataset.tab).classList.add('active');
+    btn.classList.add('active');
+    window.scrollTo(0, 0);
+  });
+});
+
+const habits = [
+  { id: 'h1', name: 'Тренировка или 2 минуты «искры»', emoji: '🔥' },
+  { id: 'h2', name: '20 минут работы с ИИ', emoji: '🤖' },
+  { id: 'h3', name: 'Каждый звонок — со следующим шагом и датой', emoji: '📞' },
+  { id: 'h4', name: 'Шаг к наставничеству или бренду', emoji: '🧭' },
+  { id: 'h5', name: 'Страница книги или больше', emoji: '📚' },
+  { id: 'h6', name: 'Ночная выгрузка мыслей', emoji: '📋' },
+];
+
+const today = new Date().toDateString();
+let checkedToday = load('artur_habits_' + today, {});
+let streaks = load('artur_streaks', {});
+
+function renderHabits() {
+  const list = document.getElementById('habits-list');
+  list.innerHTML = '';
+  habits.forEach(h => {
+    const done = !!checkedToday[h.id];
+    const streak = streaks[h.id] || 0;
+    const row = document.createElement('div');
+    row.className = 'habit-row';
+    row.innerHTML =
+      '<div class="habit-check ' + (done ? 'checked' : '') + '">' + (done ? '✓' : '') + '</div>' +
+      '<div class="habit-name">' + h.emoji + ' ' + h.name + '</div>' +
+      (streak > 1 ? '<div class="habit-streak">🔥 ' + streak + '</div>' : '');
+    row.addEventListener('click', () => toggleHabit(h.id));
+    list.appendChild(row);
+  });
+}
+
+function toggleHabit(id) {
+  checkedToday[id] = !checkedToday[id];
+  save('artur_habits_' + today, checkedToday);
+  streaks[id] = checkedToday[id] ? (streaks[id] || 0) + 1 : Math.max(0, (streaks[id] || 1) - 1);
+  save('artur_streaks', streaks);
+  renderHabits();
+  renderTracker();
+}
+
+function renderTracker() {
+  const grid = document.getElementById('tracker-grid');
+  grid.innerHTML = '';
+  const days = ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'];
+  const now = new Date();
+  const dow = (now.getDay() + 6) % 7;
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(now);
+    d.setDate(now.getDate() - dow + i);
+    const data = load('artur_habits_' + d.toDateString(), {});
+    const count = Object.values(data).filter(Boolean).length;
+    const cell = document.createElement('div');
+    cell.className = 'tracker-day' + (d.toDateString() === today ? ' today' : '') + (count >= 4 ? ' done' : '');
+    cell.textContent = days[i];
+    cell.title = count + '/' + habits.length;
+    grid.appendChild(cell);
+  }
+}
+
+['goal-month', 'goal-quarter', 'goal-year'].forEach(id => {
+  const el = document.getElementById(id);
+  const saved = load('artur_v2_' + id, null);
+  if (saved !== null) el.value = saved;
+  el.addEventListener('input', () => save('artur_v2_' + id, el.value));
+});
+
+renderHabits();
+renderTracker();
+</script>
+</body>
+</html>
